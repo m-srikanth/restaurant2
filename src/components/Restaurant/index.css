@@ -34,3 +34,7 @@ div {
   justify-content: center;
   align-items: center;
 }
+.restoName {
+  text-decoration: none;
+  color: black;
+}

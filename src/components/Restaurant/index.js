@@ -1,8 +1,9 @@
 import {Component} from 'react'
-import {AiOutlineShoppingCart} from 'react-icons/ai'
+import Cookies from 'js-cookie'
 import Loader from 'react-loader-spinner'
 import Type from '../Type'
 import RestoItem from '../RestoItem'
+import Header from '../Header'
 import './index.css'
 
 const Constants = {
@@ -15,14 +16,27 @@ class Restaurant extends Component {
   state = {
     typeList: [],
     typeIndex: 11,
-    typeItemsList: [],
     apiStatus: Constants.initiate,
-    restaurantName: '',
     cartCount: 0,
+    restaurantName: '',
   }
 
   componentDidMount() {
     this.getData()
+    this.renderName()
+  }
+
+  renderName = () => {
+    const {restaurantName} = this.state
+
+    console.log(restaurantName)
+  }
+
+  onClickLogout = () => {
+    const {history} = this.props
+
+    Cookies.remove('jwt_token')
+    history.replace('/login')
   }
 
   cartIn = () => {
@@ -37,29 +51,21 @@ class Restaurant extends Component {
   }
 
   typeId = id => {
-    this.setState({typeIndex: id, cartCount: 0}, this.getData)
+    this.setState({typeIndex: id, cartCount: 0})
   }
 
   getData = async () => {
     this.setState({apiStatus: 'INPROGRESS'})
-    const {typeIndex} = this.state
     const response = await fetch(
       'https://run.mocky.io/v3/77a7e71b-804a-4fbd-822c-3e365d3482cc',
     )
-    if (response.ok) {
-      const data = await response.json()
-      console.log(data[0].restaurant_name)
-      const type = data[0].table_menu_list
-      const itemsList = type.filter(
-        i => parseInt(i.menu_category_id) === typeIndex,
-      )
-      this.setState({
-        typeList: type,
-        typeItemsList: itemsList[0].category_dishes,
-        apiStatus: 'SUCCESS',
-        restaurantName: data[0].restaurant_name,
-      })
-    }
+    const data = await response.json()
+    const type = data[0].table_menu_list
+    this.setState({
+      typeList: type,
+      apiStatus: 'SUCCESS',
+      restaurantName: data[0].restaurant_name,
+    })
   }
 
   loaderView = () => (
@@ -69,25 +75,16 @@ class Restaurant extends Component {
   )
 
   successView = () => {
-    const {
-      typeList,
-      typeIndex,
-      typeItemsList,
-      restaurantName,
-      cartCount,
-    } = this.state
-    console.log(typeItemsList)
+    const {typeList, typeIndex, restaurantName} = this.state
+
+    const a = typeList.filter(i => parseInt(i.menu_category_id) === typeIndex)
+    const b = a[0].category_dishes
+    console.log(b)
 
     return (
       <>
-        <div className="div2">
-          <h1>{restaurantName}</h1>
-          <div className="div3">
-            <h1>My Orders</h1>
-            <AiOutlineShoppingCart size="50" />
-            <p>{cartCount}</p>
-          </div>
-        </div>
+        <Header resName={restaurantName} />
+
         <ul className="ul1">
           {typeList.map(i => (
             <Type
@@ -99,7 +96,7 @@ class Restaurant extends Component {
           ))}
         </ul>
         <ul className="ul2">
-          {typeItemsList.map(i => (
+          {b.map(i => (
             <RestoItem
               each={i}
               key={i.dish_id}
