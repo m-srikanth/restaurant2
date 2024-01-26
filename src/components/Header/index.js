@@ -34,15 +34,8 @@ class Header extends Component {
     <CartContext.Consumer>
       {value => {
         const {cartList} = value
-        const cartItemsCount = cartList.length
 
-        return (
-          <>
-            {cartItemsCount > 0 ? (
-              <span className="cart-count-badge">{cartList.length}</span>
-            ) : null}
-          </>
-        )
+        return <p className="cart-count-badge">{cartList.length}</p>
       }}
     </CartContext.Consumer>
   )
@@ -66,6 +59,7 @@ class Header extends Component {
                     type="button"
                     className="cartBtn"
                     onClick={this.gotoCart}
+                    data-testid="cart"
                   >
                     .<AiOutlineShoppingCart size="50" />
                   </button>
